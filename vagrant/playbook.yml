@@ -1,0 +1,156 @@
+---
+- hosts: all
+  become: yes
+
+  # app settings (db login etc.)
+  vars:
+    app_dir: /var/www/animon
+    db_name: animon
+    db_user: animon
+    db_pass: secret123
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - software-properties-common
+          - curl
+          - unzip
+          - acl   # lets Ansible run commands as www-data
+        state: present
+
+    - name: Add PHP repository (ondrej/php)
+      apt_repository:
+        repo: ppa:ondrej/php
+        state: present
+        update_cache: yes
+
+    - name: Add Node.js 20 repository
+      shell: curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+      args:
+        creates: /etc/apt/sources.list.d/nodesource.list
+
+    - name: Install packages
+      apt:
+        name:
+          - git
+          - nginx
+          - php8.2-cli
+          - php8.2-fpm
+          - php8.2-mysql
+          - php8.2-redis
+          - php8.2-curl
+          - php8.2-mbstring
+          - php8.2-xml
+          - php8.2-zip
+          - mysql-server
+          - redis-server
+          - nodejs          # includes npm
+          - python3-pymysql # needed for Ansible's mysql_* modules
+        state: present
+        update_cache: yes
+
+    - name: Install Composer
+      shell: curl -sS https://getcomposer.org/installer | php8.2 -- --install-dir=/usr/local/bin --filename=composer
+      args:
+        creates: /usr/local/bin/composer
+
+    - name: Start and enable services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - nginx
+        - php8.2-fpm
+        - mysql
+        - redis-server
+
+    - name: Create sql database
+      mysql_db:
+        name: "{{ db_name }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Create sql user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        priv: "{{ db_name }}.*:ALL"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Clone animon from git
+      git:
+        repo: https://github.com/DLmake/animon.git
+        dest: "{{ app_dir }}"
+        version: main
+        force: yes
+
+    - name: Write .env
+      template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+
+    - name: composer install
+      composer:
+        command: install
+        working_dir: "{{ app_dir }}"
+        no_dev: yes
+      environment:
+        COMPOSER_ALLOW_SUPERUSER: "1"
+
+    - name: npm install + build
+      shell: |
+        cd {{ app_dir }}
+        npm ci
+        npm run build
+      args:
+        creates: "{{ app_dir }}/public/build"
+
+    # hand everything to www-data AFTER installing, so nginx/php can write logs and cache
+    - name: Set ownership
+      file:
+        path: "{{ app_dir }}"
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Generate app key
+      shell: php artisan key:generate --force
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: www-data
+
+    - name: Run migrations and seed
+      shell: php artisan migrate --seed --force
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: www-data
+
+    - name: Write Nginx config
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/animon
+      notify: Reload nginx
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/animon
+        dest: /etc/nginx/sites-enabled/animon
+        state: link
+      notify: Reload nginx
+
+    - name: Disable default Nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Reload nginx
+
+  handlers:
+    - name: Reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
