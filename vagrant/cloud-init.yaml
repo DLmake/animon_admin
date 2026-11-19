@@ -1,0 +1,6 @@
+#cloud-config
+# Multipass equivalent of the Vagrantfile's "install Ansible" step
+package_update: true
+runcmd:
+  - add-apt-repository -y ppa:ansible/ansible
+  - apt-get install -y ansible
