@@ -4,7 +4,8 @@
 
   # app settings (db login etc.)
   vars:
-    app_dir: /var/www/animon
+    repo_dir: /var/www/animon        # where the git repo is cloned
+    app_dir: /var/www/animon/code    # the Laravel app lives in the code/ subfolder
     db_name: animon
     db_user: animon
     db_pass: secret123
@@ -29,8 +30,8 @@
         state: present
         update_cache: yes
 
-    - name: Add Node.js 20 repository
-      shell: curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - name: Add Node.js 22 repository
+      shell: curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
       args:
         creates: /etc/apt/sources.list.d/nodesource.list
 
@@ -39,14 +40,14 @@
         name:
           - git
           - nginx
-          - php8.2-cli
-          - php8.2-fpm
-          - php8.2-mysql
-          - php8.2-redis
-          - php8.2-curl
-          - php8.2-mbstring
-          - php8.2-xml
-          - php8.2-zip
+          - php8.4-cli
+          - php8.4-fpm
+          - php8.4-mysql
+          - php8.4-redis
+          - php8.4-curl
+          - php8.4-mbstring
+          - php8.4-xml
+          - php8.4-zip
           - mysql-server
           - redis-server
           - nodejs          # includes npm
@@ -55,7 +56,7 @@
         update_cache: yes
 
     - name: Install Composer
-      shell: curl -sS https://getcomposer.org/installer | php8.2 -- --install-dir=/usr/local/bin --filename=composer
+      shell: curl -sS https://getcomposer.org/installer | php8.4 -- --install-dir=/usr/local/bin --filename=composer
       args:
         creates: /usr/local/bin/composer
 
@@ -66,7 +67,7 @@
         enabled: yes
       loop:
         - nginx
-        - php8.2-fpm
+        - php8.4-fpm
         - mysql
         - redis-server
 
@@ -82,12 +83,22 @@
         priv: "{{ db_name }}.*:ALL"
         login_unix_socket: /var/run/mysqld/mysqld.sock
 
+    # the repo folder belongs to www-data, so git runs as www-data too
+    # (running git as root on a www-data folder gives "dubious ownership")
+    - name: Create app folder owned by www-data
+      file:
+        path: "{{ repo_dir }}"
+        state: directory
+        owner: www-data
+        group: www-data
+
     - name: Clone animon from git
       git:
         repo: https://github.com/DLmake/animon.git
-        dest: "{{ app_dir }}"
+        dest: "{{ repo_dir }}"
         version: main
         force: yes
+      become_user: www-data
 
     - name: Write .env
       template:
@@ -98,7 +109,7 @@
       composer:
         command: install
         working_dir: "{{ app_dir }}"
-        no_dev: yes
+        no_dev: no   # dev packages (Faker) are needed by the seeder
       environment:
         COMPOSER_ALLOW_SUPERUSER: "1"
 
@@ -113,7 +124,7 @@
     # hand everything to www-data AFTER installing, so nginx/php can write logs and cache
     - name: Set ownership
       file:
-        path: "{{ app_dir }}"
+        path: "{{ repo_dir }}"
         owner: www-data
         group: www-data
         recurse: yes
@@ -124,8 +135,15 @@
         chdir: "{{ app_dir }}"
       become_user: www-data
 
-    - name: Run migrations and seed
-      shell: php artisan migrate --seed --force
+    - name: Run migrations
+      shell: php artisan migrate --force
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: www-data
+
+    # species data the app needs (safe to re-run: it updates instead of duplicating)
+    - name: Seed species
+      shell: php artisan db:seed --class=SpeciesSeeder --force
       args:
         chdir: "{{ app_dir }}"
       become_user: www-data
