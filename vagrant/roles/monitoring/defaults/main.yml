@@ -1,0 +1,12 @@
+---
+# NOTE: Prometheus + Grafana need more memory. Raise the VM to 3-4 GB:
+#   Vagrant:   vb.memory = "4096"            in the vagrantfile
+#   Multipass: --memory 4G                   in scripts/common.sh
+
+node_exporter_port: 9100
+prometheus_port: 9090
+prometheus_scrape_interval: 15s
+grafana_port: 3000
+
+# TODO: move into ansible-vault
+grafana_admin_password: change-me

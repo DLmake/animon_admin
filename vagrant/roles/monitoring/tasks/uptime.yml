@@ -1,0 +1,12 @@
+---
+# Uptime check
+#
+# The app has a built-in health URL: /up (returns 200 when Laravel is healthy).
+#
+# TODO:
+#   [ ] 1. a cron job every minute that curls http://localhost/up and logs failures
+#          (or use Prometheus blackbox_exporter + an alert rule)
+#   [ ] 2. playbook check at the end: ansible.builtin.uri  url=http://localhost/up  status_code=200
+
+- name: "TODO monitoring/uptime: not implemented yet"
+  ansible.builtin.meta: noop

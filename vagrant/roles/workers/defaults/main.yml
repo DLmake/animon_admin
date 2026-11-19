@@ -1,0 +1,4 @@
+---
+queue_worker_tries: 3        # retry a failed job this many times
+queue_worker_timeout: 90     # seconds before a job is killed
+queue_worker_sleep: 3        # seconds to wait when the queue is empty

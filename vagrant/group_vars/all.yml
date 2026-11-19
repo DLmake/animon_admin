@@ -1,0 +1,19 @@
+---
+# Variables shared by all roles.
+
+repo_dir: /var/www/animon        # where the animon git repo is cloned
+app_dir: /var/www/animon/code    # the Laravel app lives in the code/ subfolder
+app_repo: https://github.com/DLmake/animon.git
+app_branch: main
+
+php_version: "8.4"
+
+db_name: animon
+db_user: animon
+# TODO (security role): move this secret into an encrypted ansible-vault file.
+#   1. ansible-vault create group_vars/vault.yml   -> put:  vault_db_pass: <strong password>
+#   2. here:  db_pass: "{{ vault_db_pass }}"
+#   3. Vagrant: ansible.vault_password_file = ".vault_pass" in the vagrantfile
+#      Multipass: add --vault-password-file /vagrant/.vault_pass in scripts/common.sh
+#   4. add .vault_pass to .gitignore (never commit the password file)
+db_pass: secret123

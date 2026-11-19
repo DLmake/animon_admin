@@ -1,0 +1,6 @@
+---
+- name: Restart queue worker
+  systemd:
+    name: animon-queue
+    state: restarted
+    daemon_reload: yes

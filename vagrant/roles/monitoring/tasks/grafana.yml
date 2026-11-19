@@ -1,0 +1,16 @@
+---
+# Grafana
+#
+# Dashboards with a login - this is the "protected admin tool".
+#
+# TODO:
+#   [ ] 1. add the Grafana apt repo (https://apt.grafana.com) + key, install grafana
+#   [ ] 2. set the admin password from grafana_admin_password (vault it!)
+#   [ ] 3. provision Prometheus as a data source (/etc/grafana/provisioning/datasources/)
+#   [ ] 4. import a dashboard, e.g. "Node Exporter Full" (ID 1860)
+#   [ ] 5. start + enable grafana-server
+#
+# Check:  http://<vm-ip>:{{ grafana_port }}   (log in as admin)
+
+- name: "TODO monitoring/grafana: not implemented yet"
+  ansible.builtin.meta: noop

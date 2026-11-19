@@ -1,0 +1,16 @@
+---
+# HTTPS
+#
+# Locally there is no real domain, so use a self-signed certificate.
+# In real production: Let's Encrypt (certbot) with your domain instead.
+#
+# TODO:
+#   [ ] 1. create {{ ssl_cert_dir }}
+#   [ ] 2. generate a self-signed cert + key there
+#          Hint: community.crypto.openssl_privatekey + x509_certificate (provider: selfsigned)
+#                or a shell task with `openssl req -x509 ...` and creates: <cert path>
+#   [ ] 3. update roles/app/templates/nginx.conf.j2 (TODOs at the top of that file)
+#   [ ] 4. add 443 to firewall_allowed_ports (already there) and APP_URL=https://... in env.j2
+
+- name: "TODO security/https: not implemented yet"
+  ansible.builtin.meta: noop

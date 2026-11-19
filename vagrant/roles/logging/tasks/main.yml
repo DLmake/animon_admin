@@ -1,0 +1,15 @@
+---
+# Role: logging
+# Goal: keep useful logs, rotate them, and (optionally) collect them in one place.
+#
+# Each part has its own file in this folder. Replace the TODO task in each file
+# with real tasks. Settings for this role are in ../defaults/main.yml.
+
+- name: Laravel application logs
+  ansible.builtin.include_tasks: laravel_logs.yml
+
+- name: Log rotation
+  ansible.builtin.include_tasks: logrotate.yml
+
+- name: Central log collection (optional)
+  ansible.builtin.include_tasks: central_logs.yml

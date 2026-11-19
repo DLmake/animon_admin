@@ -1,0 +1,13 @@
+---
+# Nightly MySQL backup
+#
+# TODO:
+#   [ ] 1. create {{ backup_dir }} (owner root, mode 0700)
+#   [ ] 2. fill in ../templates/backup.sh.j2, template it to /usr/local/bin/animon-backup (mode 0750)
+#   [ ] 3. cron job as root at {{ backup_hour }}:00 running /usr/local/bin/animon-backup
+#   [ ] 4. test a restore once:  gunzip < <file>.sql.gz | sudo mysql {{ db_name }}
+#
+# Check on the VM:  sudo /usr/local/bin/animon-backup && ls -l {{ backup_dir }}
+
+- name: "TODO backups/mysql_backup: not implemented yet"
+  ansible.builtin.meta: noop

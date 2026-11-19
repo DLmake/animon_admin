@@ -1,0 +1,17 @@
+---
+# Firewall with ufw
+#
+# Only the ports in firewall_allowed_ports (../defaults/main.yml) stay open.
+# MySQL (3306) and Redis (6379) must NOT be reachable from outside.
+#
+# TODO:
+#   [ ] 1. install ufw
+#   [ ] 2. allow each port in firewall_allowed_ports   (loop)
+#   [ ] 3. default policy: deny incoming, allow outgoing
+#   [ ] 4. enable ufw
+#   Hint: community.general.ufw   - ALWAYS allow 22 before enabling or you lock yourself out
+#
+# Check on the VM:  sudo ufw status verbose
+
+- name: "TODO security/firewall: not implemented yet"
+  ansible.builtin.meta: noop

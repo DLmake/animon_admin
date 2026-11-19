@@ -1,0 +1,12 @@
+---
+# Laravel application logs
+#
+# TODO:
+#   [ ] 1. uncomment the LOG_* lines at the bottom of roles/app/templates/env.j2
+#          (daily files, keep {{ log_retention_days }} days, level {{ laravel_log_level }})
+#   [ ] 2. make sure {{ app_dir }}/storage/logs is owned by www-data (it is, via Set ownership)
+#
+# Check on the VM:  ls -l /var/www/animon/code/storage/logs/
+
+- name: "TODO logging/laravel_logs: not implemented yet"
+  ansible.builtin.meta: noop

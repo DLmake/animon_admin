@@ -1,0 +1,16 @@
+---
+# Queue worker as a systemd service
+#
+# Why: .env has QUEUE_CONNECTION=database, but nothing processes the queue,
+#      so queued jobs (e.g. emails, AI image recognition) never run.
+#
+# TODO:
+#   [ ] 1. fill in ../templates/animon-queue.service.j2
+#   [ ] 2. template it to /etc/systemd/system/animon-queue.service
+#          (notify: Restart queue worker)
+#   [ ] 3. systemd: name=animon-queue, state=started, enabled=yes, daemon_reload=yes
+#
+# Check on the VM:  systemctl status animon-queue
+
+- name: "TODO workers/queue_worker: not implemented yet"
+  ansible.builtin.meta: noop

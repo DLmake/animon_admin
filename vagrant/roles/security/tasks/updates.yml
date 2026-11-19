@@ -1,0 +1,9 @@
+---
+# Automatic security updates
+#
+# TODO:
+#   [ ] 1. install unattended-upgrades
+#   [ ] 2. enable it (/etc/apt/apt.conf.d/20auto-upgrades)
+
+- name: "TODO security/updates: not implemented yet"
+  ansible.builtin.meta: noop

@@ -1,0 +1,9 @@
+# TODO (security role): fail2ban settings
+[DEFAULT]
+bantime  = {{ fail2ban_bantime }}
+maxretry = {{ fail2ban_maxretry }}
+
+[sshd]
+enabled = true
+
+# TODO: optional - protect nginx too, e.g. [nginx-http-auth] / [nginx-limit-req]

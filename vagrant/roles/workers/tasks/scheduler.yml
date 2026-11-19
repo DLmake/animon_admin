@@ -1,0 +1,12 @@
+---
+# Laravel task scheduler
+#
+# TODO:
+#   [ ] 1. add a cron job for user www-data that runs every minute:
+#          cd {{ app_dir }} && php artisan schedule:run >> /dev/null 2>&1
+#          Hint: ansible.builtin.cron  (name, user, job, minute: "*")
+#
+# Check on the VM:  sudo crontab -u www-data -l
+
+- name: "TODO workers/scheduler: not implemented yet"
+  ansible.builtin.meta: noop

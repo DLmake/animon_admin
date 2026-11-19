@@ -1,0 +1,14 @@
+---
+firewall_allowed_ports:
+  - 22    # SSH
+  - 80    # HTTP
+  - 443   # HTTPS
+  - 3000  # Grafana (monitoring dashboard) - remove if you put it behind nginx
+
+fail2ban_maxretry: 5         # failed logins before a ban
+fail2ban_bantime: 3600       # seconds
+
+ssl_cert_dir: /etc/ssl/animon
+
+# TODO: move into ansible-vault together with db_pass
+redis_password: change-me

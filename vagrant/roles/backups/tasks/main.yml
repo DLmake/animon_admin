@@ -1,0 +1,9 @@
+---
+# Role: backups
+# Goal: nightly database backups that can be restored.
+#
+# Each part has its own file in this folder. Replace the TODO task in each file
+# with real tasks. Settings for this role are in ../defaults/main.yml.
+
+- name: Nightly MySQL backup
+  ansible.builtin.include_tasks: mysql_backup.yml

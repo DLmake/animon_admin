@@ -1,0 +1,4 @@
+---
+backup_dir: /var/backups/animon
+backup_keep_days: 7
+backup_hour: 3     # 03:00 every night

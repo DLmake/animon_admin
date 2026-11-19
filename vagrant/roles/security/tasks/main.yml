@@ -1,0 +1,24 @@
+---
+# Role: security
+# Goal: authentication/authorization and hardening of the server.
+#
+# Each part has its own file in this folder. Replace the TODO task in each file
+# with real tasks. Settings for this role are in ../defaults/main.yml.
+
+- name: Secrets (ansible-vault, Redis password)
+  ansible.builtin.include_tasks: secrets.yml
+
+- name: Firewall (ufw)
+  ansible.builtin.include_tasks: firewall.yml
+
+- name: SSH hardening
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: Brute-force protection (fail2ban)
+  ansible.builtin.include_tasks: fail2ban.yml
+
+- name: HTTPS
+  ansible.builtin.include_tasks: https.yml
+
+- name: Automatic security updates
+  ansible.builtin.include_tasks: updates.yml

@@ -1,0 +1,14 @@
+---
+# Prometheus
+#
+# Collects metrics from the exporters every {{ prometheus_scrape_interval }}.
+#
+# TODO:
+#   [ ] 1. install the Ubuntu package prometheus
+#   [ ] 2. fill in ../templates/prometheus.yml.j2, template it to /etc/prometheus/prometheus.yml
+#   [ ] 3. notify: Restart prometheus
+#
+# Check:  http://<vm-ip>:{{ prometheus_port }}/targets  (all targets should be UP)
+
+- name: "TODO monitoring/prometheus: not implemented yet"
+  ansible.builtin.meta: noop

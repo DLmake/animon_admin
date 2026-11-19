@@ -1,0 +1,26 @@
+{# TODO (security role): HTTPS
+   - add a second server block: listen 443 ssl; ssl_certificate / ssl_certificate_key
+   - make this port-80 block just redirect:  return 301 https://$host$request_uri;
+   TODO (security role): security headers, e.g.
+     add_header X-Frame-Options "SAMEORIGIN";
+     add_header X-Content-Type-Options "nosniff";
+     add_header Referrer-Policy "strict-origin-when-cross-origin";
+   TODO (security role): rate limiting on /login with limit_req #}
+server {
+    listen 80 default_server;
+    server_name _;
+    root {{ app_dir }}/public;
+    index index.php;
+
+    client_max_body_size 20M;   # allow photo uploads
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php{{ php_version }}-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

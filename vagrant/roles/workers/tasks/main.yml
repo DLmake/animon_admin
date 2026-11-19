@@ -1,0 +1,12 @@
+---
+# Role: workers
+# Goal: keep background work running: queued jobs and scheduled tasks.
+#
+# Each part has its own file in this folder. Replace the TODO task in each file
+# with real tasks. Settings for this role are in ../defaults/main.yml.
+
+- name: Queue worker (processes queued jobs)
+  ansible.builtin.include_tasks: queue_worker.yml
+
+- name: Task scheduler (runs php artisan schedule:run every minute)
+  ansible.builtin.include_tasks: scheduler.yml

@@ -1,0 +1,14 @@
+---
+# Log rotation
+#
+# nginx, MySQL and PHP-FPM already ship logrotate configs on Ubuntu.
+#
+# TODO:
+#   [ ] 1. fill in ../templates/logrotate-animon.j2 for any app logs that are NOT
+#          rotated by Laravel's daily driver (e.g. the queue worker output)
+#   [ ] 2. template it to /etc/logrotate.d/animon
+#
+# Check on the VM:  sudo logrotate -d /etc/logrotate.d/animon
+
+- name: "TODO logging/logrotate: not implemented yet"
+  ansible.builtin.meta: noop

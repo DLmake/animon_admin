@@ -1,0 +1,13 @@
+---
+# SSH hardening
+#
+# Vagrant and Multipass already log in with SSH keys, so passwords can be turned off.
+#
+# TODO:
+#   [ ] 1. /etc/ssh/sshd_config: PasswordAuthentication no
+#   [ ] 2. /etc/ssh/sshd_config: PermitRootLogin no
+#   [ ] 3. notify: Restart ssh
+#   Hint: ansible.builtin.lineinfile with regexp + line, validate: "sshd -t -f %s"
+
+- name: "TODO security/ssh: not implemented yet"
+  ansible.builtin.meta: noop

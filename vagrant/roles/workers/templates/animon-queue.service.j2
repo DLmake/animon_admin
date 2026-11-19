@@ -1,0 +1,14 @@
+# TODO (workers role): systemd unit for the Laravel queue worker
+[Unit]
+Description=Animon queue worker
+After=network.target mysql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory={{ app_dir }}
+# TODO: ExecStart=/usr/bin/php artisan queue:work --tries={{ queue_worker_tries }} --timeout={{ queue_worker_timeout }} --sleep={{ queue_worker_sleep }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+---
+# fail2ban
+#
+# TODO:
+#   [ ] 1. install fail2ban
+#   [ ] 2. fill in ../templates/jail.local.j2 and template it to /etc/fail2ban/jail.local
+#   [ ] 3. notify: Restart fail2ban
+#
+# Check on the VM:  sudo fail2ban-client status sshd
+
+- name: "TODO security/fail2ban: not implemented yet"
+  ansible.builtin.meta: noop

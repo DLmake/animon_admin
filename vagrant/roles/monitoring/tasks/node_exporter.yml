@@ -1,0 +1,14 @@
+---
+# node_exporter
+#
+# Exposes CPU, memory, disk and network metrics on port {{ node_exporter_port }}.
+#
+# TODO:
+#   [ ] 1. install the Ubuntu package prometheus-node-exporter
+#   [ ] 2. make sure the service is started + enabled
+#   [ ] (optional) prometheus-mysqld-exporter, nginx stub_status + exporter
+#
+# Check on the VM:  curl -s localhost:{{ node_exporter_port }}/metrics | head
+
+- name: "TODO monitoring/node_exporter: not implemented yet"
+  ansible.builtin.meta: noop

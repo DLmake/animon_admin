@@ -1,0 +1,12 @@
+---
+# Central log collection (optional)
+#
+# Collect all logs in Grafana so they're searchable next to the metrics.
+#
+# TODO (optional):
+#   [ ] 1. install Loki (log storage) and Promtail (ships log files to Loki)
+#   [ ] 2. Promtail: read /var/log/nginx/*.log and {{ app_dir }}/storage/logs/*.log
+#   [ ] 3. add Loki as a data source in Grafana (monitoring role)
+
+- name: "TODO logging/central_logs: not implemented yet"
+  ansible.builtin.meta: noop

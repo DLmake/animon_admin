@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# TODO (backups role): dump the database and delete old backups
+set -euo pipefail
+
+STAMP="$(date +%F_%H%M)"
+# TODO: mysqldump --single-transaction {{ db_name }} | gzip > "{{ backup_dir }}/{{ db_name }}_$STAMP.sql.gz"
+# TODO: find "{{ backup_dir }}" -name '*.sql.gz' -mtime +{{ backup_keep_days }} -delete

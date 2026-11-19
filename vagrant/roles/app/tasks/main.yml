@@ -1,0 +1,164 @@
+---
+# Role: app - installs and configures the Animon Laravel app (working, do not break).
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install prerequisites
+  apt:
+    name:
+      - software-properties-common
+      - curl
+      - unzip
+      - acl   # lets Ansible run commands as www-data
+    state: present
+
+- name: Add PHP repository (ondrej/php)
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+    update_cache: yes
+
+- name: Add Node.js 22 repository
+  shell: curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  args:
+    creates: /etc/apt/sources.list.d/nodesource.list
+
+- name: Install packages
+  apt:
+    name:
+      - git
+      - nginx
+      - "php{{ php_version }}-cli"
+      - "php{{ php_version }}-fpm"
+      - "php{{ php_version }}-mysql"
+      - "php{{ php_version }}-redis"
+      - "php{{ php_version }}-curl"
+      - "php{{ php_version }}-mbstring"
+      - "php{{ php_version }}-xml"
+      - "php{{ php_version }}-zip"
+      - mysql-server
+      - redis-server
+      - nodejs          # includes npm
+      - python3-pymysql # needed for Ansible's mysql_* modules
+    state: present
+    update_cache: yes
+
+- name: Install Composer
+  shell: "curl -sS https://getcomposer.org/installer | php{{ php_version }} -- --install-dir=/usr/local/bin --filename=composer"
+  args:
+    creates: /usr/local/bin/composer
+
+- name: Start and enable services
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - nginx
+    - "php{{ php_version }}-fpm"
+    - mysql
+    - redis-server
+
+- name: Create sql database
+  mysql_db:
+    name: "{{ db_name }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create sql user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    priv: "{{ db_name }}.*:ALL"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+# the repo folder belongs to www-data, so git runs as www-data too
+# (running git as root on a www-data folder gives "dubious ownership")
+- name: Create app folder owned by www-data
+  file:
+    path: "{{ repo_dir }}"
+    state: directory
+    owner: www-data
+    group: www-data
+
+- name: Clone animon from git
+  git:
+    repo: "{{ app_repo }}"
+    dest: "{{ repo_dir }}"
+    version: "{{ app_branch }}"
+    force: yes
+  become_user: www-data
+
+- name: Write .env
+  template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+
+- name: composer install
+  composer:
+    command: install
+    working_dir: "{{ app_dir }}"
+    no_dev: no   # dev packages (Faker) are needed by the seeder
+  environment:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+
+- name: npm install + build
+  shell: |
+    cd {{ app_dir }}
+    npm ci
+    npm run build
+  args:
+    creates: "{{ app_dir }}/public/build"
+
+# hand everything to www-data AFTER installing, so nginx/php can write logs and cache
+- name: Set ownership
+  file:
+    path: "{{ repo_dir }}"
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Generate app key
+  shell: php artisan key:generate --force
+  args:
+    chdir: "{{ app_dir }}"
+  become_user: www-data
+
+- name: Run migrations
+  shell: php artisan migrate --force
+  args:
+    chdir: "{{ app_dir }}"
+  become_user: www-data
+
+# species data the app needs (safe to re-run: it updates instead of duplicating)
+- name: Seed species
+  shell: php artisan db:seed --class=SpeciesSeeder --force
+  args:
+    chdir: "{{ app_dir }}"
+  become_user: www-data
+
+# TODO (performance): cache config/routes/views for production
+#   - name: Optimize Laravel
+#     shell: php artisan optimize
+#     args: { chdir: "{{ app_dir }}" }
+#     become_user: www-data
+
+- name: Write Nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/animon
+  notify: Reload nginx
+
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/animon
+    dest: /etc/nginx/sites-enabled/animon
+    state: link
+  notify: Reload nginx
+
+- name: Disable default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
